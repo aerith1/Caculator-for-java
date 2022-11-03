@@ -28,7 +28,7 @@ public class Caculator {
                 }
                 operatorStack.pop();
             }
-            else if(expression[i].charAt(0) == '-'&& Character.isDigit(expression[i].charAt(1))){
+            else if(expression[i].charAt(0) == '-' && Character.isDigit(expression[i].charAt(1))){
                 operandList.add(expression[i]);
             }
             else {

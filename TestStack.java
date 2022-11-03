@@ -4,9 +4,9 @@ public class TestStack {
     public static void main(String[] args){
         String[] a = new String[20];
         a = getExpression("50 + (-2)");
-        for(String i: a){
-            System.out.println(i);
-        }
+        // for(String i: a){
+        //     System.out.println(i);
+        // }
         List<String> b = new ArrayList<String>();
         b = caculatorExpression(a);
         parseExpression(b);

@@ -9,6 +9,7 @@ public class Caculator {
             String expression = input.nextLine();
             String[] a = new String[expression.length()];
             if(a.length == 0){
+                output.println("Invalid Expression");
                 continue;
             }
             try{
@@ -17,7 +18,7 @@ public class Caculator {
                 b = caculatorExpression(a);
                 output.println(parseExpression(b));
             }catch(IllegalArgumentException ex){
-                output.println("Invalid Operator");
+                output.println("Invalid Expression");
             }
         }
         System.out.println("finish.");

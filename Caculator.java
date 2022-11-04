@@ -8,6 +8,9 @@ public class Caculator {
         while(input.hasNext()){
             String expression = input.nextLine();
             String[] a = new String[expression.length()];
+            if(a.length == 0){
+                continue;
+            }
             try{
                 a = getExpression(expression);
                 List<String> b = new ArrayList<String>();

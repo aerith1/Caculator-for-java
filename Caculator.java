@@ -1,21 +1,33 @@
 import java.util.*;
-
+import java.util.Scanner;
 public class Caculator {
-    public static void main(String[] args){
-        String[] a = new String[20];
-        a = getExpression("50 + (-2)");
-        List<String> b = new ArrayList<String>();
-        b = caculatorExpression(a);
-        parseExpression(b);
+    public static void main(String[] args)throws java.io.IOException{
+        java.io.File Testfile = new java.io.File("./Test.txt");
+        java.io.PrintWriter output = new java.io.PrintWriter("./Result.txt");
+        Scanner input = new Scanner(Testfile);
+        while(input.hasNext()){
+            String expression = input.nextLine();
+            String[] a = new String[expression.length()];
+            try{
+                a = getExpression(expression);
+                List<String> b = new ArrayList<String>();
+                b = caculatorExpression(a);
+                output.println(parseExpression(b));
+            }catch(IllegalArgumentException ex){
+                output.println("Invalid Operator");
+            }
+        }
+        System.out.println("finish.");
+        output.close();
+        input.close();
     }
 
     public static List<String> caculatorExpression(String[] expression){
         List<String> operandList = new ArrayList<String>();//存放数字
         Stack<String> operatorStack = new Stack<>(); //存放表达式
-        // String[] expression = expression.split(" ");
         for(int i = 0; i < expression.length; i++){
-            System.out.println(expression[i]);
-            if(expression[i].matches("\\d+"))
+            //System.out.println(expression[i]);
+            if(Character.isDigit(expression[i].charAt(0)))
             {
                 operandList.add(expression[i]);
             }
@@ -41,31 +53,58 @@ public class Caculator {
         while(operatorStack.size() != 0){
             operandList.add(operatorStack.pop());
         }
-        System.out.println(operandList);
+        // System.out.println(operandList);
         return operandList;
     }
 
-    public static int parseExpression(List<String> exp){
-        Integer result = 0;
+    public static String parseExpression(List<String> exp){
         // System.out.println(exp);
+        String result;
         Stack<String> st = new Stack<String>();
-        for(int i = 0; i < exp.size(); i++){
-            if(exp.get(i).equals("+") || exp.get(i).equals("-") || exp.get(i).equals("*") || exp.get(i).equals("/")){
-                Integer n1, n2;
-                n1 = Integer.valueOf(st.pop());
-                n2 = Integer.valueOf(st.pop());
-                st.push(String.valueOf(switchOperation(n1, n2, exp.get(i))));
+        try{
+            for(int i = 0; i < exp.size(); i++){
+                if(exp.get(i).equals("+") || exp.get(i).equals("-") || exp.get(i).equals("*") || exp.get(i).equals("/")){
+                    String n1 = st.pop();
+                    String n2 = st.pop();
+                    if(isInt(n1) && isInt(n2)){
+                        Integer Intn1, Intn2;
+                        Intn1 = Integer.valueOf(n1);
+                        Intn2 = Integer.valueOf(n2);
+                        st.push(String.valueOf(switchOperation(Intn1, Intn2, exp.get(i))));
+                    }
+                    else if(!isInt(n1) && !isInt(n2)){
+                        Double Doublen1,Doublen2;
+                        Doublen1 = Double.valueOf(n1);
+                        Doublen2 = Double.valueOf(n2);
+                        st.push(String.valueOf(switchOperation(Doublen1, Doublen2, exp.get(i))));
+                    }
+                    else if(isInt(n2) == false){
+                        Integer Intn1;
+                        Double Doublen2;
+                        Intn1 = Integer.valueOf(n1);
+                        Doublen2 = Double.valueOf(n2);
+                        st.push(String.valueOf(switchOperation(Intn1, Doublen2, exp.get(i))));
+                    }
+                    else if(isInt(n1) == false){
+                        Double Doublen1;
+                        Integer Intn2;
+                        Doublen1 = Double.valueOf(n1);
+                        Intn2 = Integer.valueOf(n2);
+                        st.push(String.valueOf(switchOperation(Doublen1, Intn2, exp.get(i))));
+                    }
+                }
+                else
+                    st.push(exp.get(i));
             }
-            else
-                st.push(exp.get(i));
+            result = st.pop();
+            // System.out.println(result);
+            return result;
+        }catch(ArithmeticException ex){
+            return "Invalid Expression";
         }
-        result = Integer.valueOf(st.pop());
-        System.out.println(result);
-        return result;
     }
 
     public static String[] getExpression(String expression){
-        System.out.println("getExpression is used");
         expression = expression.replace(" ", "");
         List<String> exp = new ArrayList<String>();
         int i = 0;
@@ -110,10 +149,12 @@ public class Caculator {
                 }
                 exp.add(s.toString());
             }
+        }else if(c1 == '(' || c1 == ')' || c1 == '+' || c1 == '*' || c1 == '/'){
+            exp.add(String.valueOf(String.valueOf(expression.charAt(i))));
+            i++;
         }else{
-                exp.add(String.valueOf(String.valueOf(expression.charAt(i))));
-                i++;
-            }
+            throw new IllegalArgumentException();
+        }
         }
         return exp.toArray(new String[exp.size()]);
     }
@@ -127,8 +168,63 @@ public class Caculator {
             return -1;
     }
 
+    public static boolean isInt(String n){
+        for(int i = 0; i < n.length(); i++){
+            if(n.charAt(i) == '.')
+                return false;
+        }
+        return true;
+    }
+
     public static int switchOperation(int n1, int n2, String op){
         int res = 0;
+        if(n1 == 0)
+            throw new ArithmeticException();
+        if(op.equals("+"))
+            res = n2 + n1;
+        else if(op.equals("-"))
+            res = n2 - n1;
+        else if(op.equals("*"))
+            res = n2 * n1;
+        else if(op.equals("/"))
+            return n2 / n1;
+        return res;
+    }
+
+    public static double switchOperation(int n1, double n2, String op){
+        double res = 0;
+        if(n1 == 0)
+            throw new ArithmeticException();
+        if(op.equals("+"))
+            res = n2 + n1;
+        else if(op.equals("-"))
+            res = n2 - n1;
+        else if(op.equals("*"))
+            res = n2 * n1;
+        else if(op.equals("/"))
+            return n2 / n1;
+        return res;
+    }
+
+    public static double switchOperation(double n1, int n2, String op){
+        double res = 0;
+        if(n1 == 0.0)
+            throw new ArithmeticException();
+        if(op.equals("+"))
+            res = n2 + n1;
+        else if(op.equals("-"))
+            res = n2 - n1;
+        else if(op.equals("*"))
+            res = n2 * n1;
+        else if(op.equals("/"))
+            return n2 / n1;
+        return res;
+    }
+
+    public static double switchOperation(double n1, double n2, String op){
+        double res = 0;
+        if(n1 == 0.0)
+            throw new ArithmeticException();
         if(op.equals("+"))
             res = n2 + n1;
         else if(op.equals("-"))
